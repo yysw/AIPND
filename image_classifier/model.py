@@ -63,7 +63,7 @@ class myModel:
         device = torch.device("cuda" if self.gpu else "cpu")
         print("train with {}".format("gpu" if self.gpu else "cpu"))
         optimizer = optim.Adam(model.classifier.parameters(), lr=learning_rate)
-        model.to(device);
+        model.to(device)
 
         for epoch in range(epochs):
             for inputs, labels in trainloader:
@@ -98,7 +98,7 @@ class myModel:
                             equals = top_class == labels.view(*top_class.shape)
                             accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
 
-                    print(f"Epoch {epoch+1}/{epochs}.. "
+                    print(f"Epoch {epoch+1}/{epochs} Step {steps} "
                           f"Train loss: {running_loss/print_every:.3f}.. "
                           f"Validation loss: {valid_loss/len(validloader):.3f}.. "
                           f"Validation accuracy: {accuracy/len(validloader):.3f}")
@@ -113,6 +113,8 @@ class myModel:
 
         device = torch.device("cuda" if self.gpu else "cpu")
         model.eval()
+        model.to(device)
+
         with torch.no_grad():
             for inputs, labels in testloader:
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -131,18 +133,18 @@ class myModel:
               f"Test accuracy: {accuracy/len(testloader):.3f}")
 
     # Save the checkpoint 
-    def save_model(self, model, class_to_idx):
+    def save_model(self, model, save_dir, class_to_idx):
         checkpoint = {'class_to_idx': class_to_idx,
                       'state_dict': model.state_dict()}
 
-        torch.save(checkpoint, self.save_dir+'checkpoint.pth')
+        torch.save(checkpoint, save_dir+'checkpoint.pth')
 
     # Loads a checkpoint and rebuilds the model
-    def load_model(self):
+    def load_model(self, model_path):
         # Define a model with the same architecture
-        model = load_pretrained_model(self.arch)
-        model = redefine_model(model, self.hidden_units)
-        checkpoint = torch.load(self.save_dir+'checkpoint.pth')
+        model = self.load_pretrained_model()
+        model = self.redefine_model(model)
+        checkpoint = torch.load(model_path)
         model.load_state_dict(checkpoint['state_dict'])
         model.class_to_idx = checkpoint['class_to_idx']
 
