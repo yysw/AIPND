@@ -17,7 +17,7 @@ def main():
     data_dir = in_arg.data_dir
     
     # cteate model object
-    mymodel = myModel(arch, hidden_units, gpu, True)
+    mymodel = myModel(arch=arch, hidden_units=hidden_units, gpu=hidden_units, pretrained=True)
     # load pretrained model
     model = mymodel.load_pretrained_model()
     # redefine the classifier

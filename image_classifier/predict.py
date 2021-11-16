@@ -65,7 +65,7 @@ def main():
     hidden_units = in_arg.hidden_units
     
     # cteate model object, set pretrain flag to False
-    mymodel = myModel(arch, hidden_units, gpu, False)
+    mymodel = myModel(arch=arch, hidden_units=hidden_units, gpu=gpu, pretrained=False)
     # load the saved model
     model = mymodel.load_model()
     # get data set
