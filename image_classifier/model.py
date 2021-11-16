@@ -133,7 +133,7 @@ class myModel:
     # Save the checkpoint 
     def save_model(self, model, class_to_idx):
         checkpoint = {'class_to_idx': class_to_idx,
-                      'state_dict': my_model.state_dict()}
+                      'state_dict': model.state_dict()}
 
         torch.save(checkpoint, self.save_dir+'checkpoint.pth')
 

@@ -28,12 +28,15 @@ def main():
     trainloader, validloader, testloader, class_to_idx = get_data(data_dir)
     
     # Train the model
+    print("\nstart to train...")
     mymodel.train_model(model, trainloader, validloader, learning_rate, epochs, print_every)
 
     # Test the model
+    print("\nstart to test...")
     mymodel.test_model(model, testloader)
     
     # Save the model
+    print("\nstart to test...")
     mymodel.save_model(model, class_to_idx)
     
     
