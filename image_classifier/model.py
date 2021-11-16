@@ -9,10 +9,11 @@ from collections import OrderedDict
 
 class myModel:
 
-    def __init__(self, arch, hidden_units, pretrained):
+    def __init__(self, arch, hidden_units, gpu, pretrained):
         self.arch = arch
         self.hidden_units = hidden_units
         self.pretrained = pretrained
+        self.gpu = gpu
 
     def load_pretrained_model(self):
         arch = self.arch
@@ -54,12 +55,13 @@ class myModel:
         return model
 
     # Train the feed-forward network
-    def train_model(self, model, trainloader, validloader, gpu, learning_rate, epochs=1, print_every=5):
+    def train_model(self, model, trainloader, validloader, learning_rate, epochs=1, print_every=5):
         steps = 0
         running_loss = 0
         criterion = nn.NLLLoss()
 
-        device = torch.device("cuda" if gpu else "cpu")
+        device = torch.device("cuda" if self.gpu else "cpu")
+        print("train with {}".format("gpu" if self.gpu else "cpu"))
         optimizer = optim.Adam(model.classifier.parameters(), lr=learning_rate)
         model.to(device);
 
@@ -109,6 +111,7 @@ class myModel:
         accuracy = 0
         criterion = nn.NLLLoss()
 
+        device = torch.device("cuda" if self.gpu else "cpu")
         model.eval()
         with torch.no_grad():
             for inputs, labels in testloader:
@@ -128,9 +131,8 @@ class myModel:
               f"Test accuracy: {accuracy/len(testloader):.3f}")
 
     # Save the checkpoint 
-    def save_model(self, model):
-        model.class_to_idx = train_data.class_to_idx
-        checkpoint = {'class_to_idx': train_data.class_to_idx,
+    def save_model(self, model, class_to_idx):
+        checkpoint = {'class_to_idx': class_to_idx,
                       'state_dict': my_model.state_dict()}
 
         torch.save(checkpoint, self.save_dir+'checkpoint.pth')
@@ -138,7 +140,7 @@ class myModel:
     # Write a function that loads a checkpoint and rebuilds the model
     def load_model(self):
         # Define a model with the same architecture
-        model = load_pretrained_model(self.arch, False)
+        model = load_pretrained_model(self.arch)
         model = redefine_model(model, self.hidden_units)
         checkpoint = torch.load(self.save_dir+'checkpoint.pth')
         model.load_state_dict(checkpoint['state_dict'])

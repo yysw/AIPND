@@ -39,5 +39,10 @@ def get_data(data_dir):
     validloader = torch.utils.data.DataLoader(valid_data, batch_size=64)
     testloader = torch.utils.data.DataLoader(test_data, batch_size=64)
 
-    return trainloader, validloader, testloader
+    class_to_idx = train_data.class_to_idx
+    
+    return trainloader, validloader, testloader, class_to_idx
+
+def get_class_to_idx():
+    return 
 
