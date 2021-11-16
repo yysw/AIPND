@@ -8,6 +8,7 @@ from model import *
 def main():
     # get input params
     in_arg = get_input_args_for_train()
+    
     arch = in_arg.arch
     hidden_units = in_arg.hidden_units
     gpu = in_arg.gpu
@@ -17,7 +18,7 @@ def main():
     data_dir = in_arg.data_dir
     
     # cteate model object
-    mymodel = myModel(arch=arch, hidden_units=hidden_units, gpu=hidden_units, pretrained=True)
+    mymodel = myModel(arch=arch, hidden_units=hidden_units, gpu=gpu, pretrained=True)
     # load pretrained model
     model = mymodel.load_pretrained_model()
     # redefine the classifier

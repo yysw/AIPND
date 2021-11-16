@@ -137,7 +137,7 @@ class myModel:
 
         torch.save(checkpoint, self.save_dir+'checkpoint.pth')
 
-    # Write a function that loads a checkpoint and rebuilds the model
+    # Loads a checkpoint and rebuilds the model
     def load_model(self):
         # Define a model with the same architecture
         model = load_pretrained_model(self.arch)
