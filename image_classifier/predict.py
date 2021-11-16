@@ -75,7 +75,8 @@ def main():
     mymodel.test_model(model, testloader)
     
     # Predict the calss fo input image
-    predict(model, image_path, category_names, class_to_idx, topk=5):
+    top_p, top_class = predict(model, image_path, category_names, class_to_idx, topk=5)
+    print('Predict Probability: {}  Predict Class: {}'.format(top_p, top_class))
         
 # Call to main function to run the program
 if __name__ == "__main__":
