@@ -3,11 +3,13 @@
 from get_args import *
 from get_data import *
 from model import *
+from workspace_utils import active_session
 
     
 def main():
     # get input params
     in_arg = get_input_args_for_train()
+    print(in_arg)
     
     arch = in_arg.arch
     hidden_units = in_arg.hidden_units
@@ -16,6 +18,7 @@ def main():
     epochs = in_arg.epochs
     print_every = in_arg.print_every
     data_dir = in_arg.data_dir
+    save_dir = in_arg.save_dir
     
     # cteate model object
     mymodel = myModel(arch=arch, hidden_units=hidden_units, gpu=gpu, pretrained=True)
@@ -29,15 +32,17 @@ def main():
     
     # Train the model
     print("\nstart to train...")
-    mymodel.train_model(model, trainloader, validloader, learning_rate, epochs, print_every)
+
+    with active_session():
+        mymodel.train_model(model, trainloader, validloader, learning_rate, epochs, print_every)
 
     # Test the model
     print("\nstart to test...")
     mymodel.test_model(model, testloader)
     
     # Save the model
-    print("\nstart to test...")
-    mymodel.save_model(model, class_to_idx)
+    print("\nstart to save model...")
+    mymodel.save_model(model, save_dir, class_to_idx)
     
     
 # Call to main function to run the program

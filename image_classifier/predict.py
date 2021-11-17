@@ -25,37 +25,43 @@ def process_image(image):
 
 
 
-def predict(model, image_path, category_names, class_to_idx, topk=5):
+def predict(model, gpu, image_path, category_names, class_to_idx, topk=5):
     ''' Predict the class (or classes) of an image
     '''
     idx_to_class  = {v: k for k, v in class_to_idx.items()}
     with open(category_names, 'r') as f:
-    cat_to_name = json.load(f)
+        cat_to_name = json.load(f)
 
+    device = torch.device("cuda" if gpu else "cpu")
+    print("predict with {}".format("gpu" if gpu else "cpu"))
     model.eval()
     img = process_image(image_path)
     # Align the dimension of input image
     imgs = img[None, :]
     imgs = imgs.to(device)
+    model.to(device);
 
     with torch.no_grad():
-        output = model_loaded.forward(imgs)
-
+        output = model.forward(imgs)
     ps = torch.exp(output)
-
     top_p, top_idx = ps.topk(topk, dim=1)
 
     # Squeeze the tensor, then conver to numpy array
     top_p = torch.squeeze(top_p).cpu().numpy()
     top_idx = torch.squeeze(top_idx).cpu().numpy()
-    top_class = [idx_to_class[x] for x in top_idx] 
-    # Look at the most likely classes for the topk examples
-    return top_p, cat_to_name[top_class]
+    
+    if top_idx.ndim == 0:    
+        top_class = [idx_to_class[int(top_idx)]]
+    else:
+        top_class = [idx_to_class[x] for x in top_idx]
+
+    # Return the probabilities and the most likely classes for the input image
+    return top_p, [cat_to_name[k] for k in top_class]
 
 
 def main():
     # get input params
-    in_arg = get_input_args_for_train()
+    in_arg = get_input_args_for_predict()
     image_path = in_arg.image_path
     checkpoint = in_arg.checkpoint
     gpu = in_arg.gpu
@@ -67,16 +73,11 @@ def main():
     # cteate model object, set pretrain flag to False
     mymodel = myModel(arch=arch, hidden_units=hidden_units, gpu=gpu, pretrained=False)
     # load the saved model
-    model = mymodel.load_model()
-    # get data set
-    trainloader, validloader, testloader, class_to_idx = get_data(data_dir)
-    
-    # Test the model
-    mymodel.test_model(model, testloader)
+    model = mymodel.load_model(checkpoint)
     
     # Predict the calss fo input image
-    top_p, top_class = predict(model, image_path, category_names, class_to_idx, topk=5)
-    print('Predict Probability: {}  Predict Class: {}'.format(top_p, top_class))
+    top_p, top_class = predict(model, gpu, image_path, category_names, model.class_to_idx, top_k)
+    print('Predict Probability: {}   \nTop k classes: {}'.format(top_p, top_class))
         
 # Call to main function to run the program
 if __name__ == "__main__":
